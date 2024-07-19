@@ -1,2 +1,3 @@
-servicename=$(k get service -l "app={{ .Values.appName }}" -o jsonpath="{.items[0].metadata.name}")
-kubectl --namespace <namespace> port-forward service/{{ .Values.appName }} 8888:80
+HOST=$(oc get route/kafka-sizing -n openshift-gitops | tail -1 | awk '{print $2;}')
+echo "http://${HOST}/size"
+Access the kafka-sizing web application using the URL above.
