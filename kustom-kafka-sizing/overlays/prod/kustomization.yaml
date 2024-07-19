@@ -1,0 +1,11 @@
+bases:
+- ../../base
+
+patchesStrategicMerge:
+ - replicas.yaml
+
+namespace: prod
+
+configMapGenerator:
+- name: kafka-sizing
+  env: config.properties

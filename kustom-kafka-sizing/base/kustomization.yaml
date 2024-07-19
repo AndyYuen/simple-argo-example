@@ -1,0 +1,16 @@
+resources:
+- deployment.yaml
+- service.yaml
+- route.yaml
+
+commonLabels:
+  app: kafka-sizing
+
+commonAnnotations:
+  app: kafka-sizing-annontations
+
+namePrefix:
+  kustom-
+
+nameSuffix:
+  -v1

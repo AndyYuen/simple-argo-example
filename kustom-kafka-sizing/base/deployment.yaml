@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-sizing
+spec:
+  replicas: 1
+  template:
+    spec: # Pod spec
+      containers:
+      - name: webcontainer
+        image: "quay.io/andyyuen/kafka-sizing:latest"
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: my-configmap
+        resources:
+          requests:
+            memory: "200Mi" 
+            cpu: "100m"
+          limits:
+            memory: "800Mi"
+            cpu: "500m"

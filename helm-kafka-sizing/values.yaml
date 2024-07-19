@@ -1,0 +1,12 @@
+appName: kafka-sizing
+
+port: 8080
+
+replicas: 1
+
+configmap:
+  name: kafka-sizing-configmap-v1
+
+image:
+  name: quay.io/andyyuen/kafka-sizing
+  tag: latest
