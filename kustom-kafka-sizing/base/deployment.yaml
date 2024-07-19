@@ -13,7 +13,7 @@ spec:
         - containerPort: 8080
         envFrom:
         - configMapRef:
-            name: my-configmap
+            name: kafka-sizing
         resources:
           requests:
             memory: "200Mi" 
