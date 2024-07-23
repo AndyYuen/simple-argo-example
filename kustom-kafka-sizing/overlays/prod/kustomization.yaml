@@ -1,6 +1,9 @@
 bases:
 - ../../base
 
+resources:
+ - mysql-init.yaml
+
 patchesStrategicMerge:
  - replicas.yaml
 
