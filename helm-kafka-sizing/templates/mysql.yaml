@@ -60,21 +60,7 @@ items:
       name: mysql
     strategy:
       type: Recreate
-      recreateParams:
-        post:
-          execNewPod:
-            command:
-              - /bin/sh
-              - '-c'
-              - >-
-                curl -o ~/schema-mysql.sql
-                https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
-                && /usr/bin/mysql -h mysql --protocol TCP -u
-                $MYSQL_USER -D $MYSQL_DATABASE -p$MYSQL_PASSWORD <
-                ~/schema-mysql.sql
-            containerName: mysql
-          failurePolicy: abort
-
+      {{- include "mysqlInit" . | indent 6 }}
     template:
       metadata:
         labels:

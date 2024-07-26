@@ -1,3 +1,4 @@
+# Source: kafka-sizing/templates/mysql.yaml
 apiVersion: v1
 items:
 - apiVersion: v1
@@ -59,7 +60,7 @@ items:
     selector:
       name: mysql
     strategy:
-      type: Recreate
+      type: Recreate      
       recreateParams:
         post:
           execNewPod:
@@ -67,14 +68,14 @@ items:
               - /bin/sh
               - '-c'
               - >-
-                curl -o ~/schema-mysql.sql
+                curl -o ~/schema-mysql.sql 
                 https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
-                && /usr/bin/mysql -h mysql --protocol TCP -u
+                && /usr/bin/mysql -h mysql -P 3306 -u
                 $MYSQL_USER -D $MYSQL_DATABASE -p$MYSQL_PASSWORD <
                 ~/schema-mysql.sql
             containerName: mysql
           failurePolicy: abort
-
+      
     template:
       metadata:
         labels:

@@ -3,4 +3,4 @@ kind: Deployment
 metadata:
   name: kafka-sizing
 spec:
-  replicas: 3
+  replicas: 2

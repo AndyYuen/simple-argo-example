@@ -1,0 +1,16 @@
+{{ define "mysqlInit" }}
+recreateParams:
+  post:
+    execNewPod:
+      command:
+        - /bin/sh
+        - '-c'
+        - >-
+          curl -o ~/schema-mysql.sql 
+          {{ .Values.initSQL }}
+          && /usr/bin/mysql -h mysql --protocol TCP -u
+          $MYSQL_USER -D $MYSQL_DATABASE -p$MYSQL_PASSWORD <
+          ~/schema-mysql.sql
+      containerName: mysql
+    failurePolicy: abort
+{{ end }}

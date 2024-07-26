@@ -1,13 +1,10 @@
 bases:
 - ../../base
 
-resources:
- - mysql-init.yaml
-
 patchesStrategicMerge:
- - replicas.yaml
+- replicas.yaml
 
-namespace: openshift-gitops
+#namespace: openshift-gitops
 
 configMapGenerator:
 - name: kafka-sizing

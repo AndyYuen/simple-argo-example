@@ -3,9 +3,8 @@ kind: Route
 metadata:
   name: kafka-sizing
 spec:
-  host: kafka-sizing-openshift-gitops.apps.ocpvirt.localdomain
   port:
     targetPort: 8080 
   to:
     kind: Service
-    name: kustom-kafka-sizing-v1
+    name: kafka-sizing

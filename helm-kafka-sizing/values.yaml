@@ -4,9 +4,11 @@ port: 8080
 
 replicas: 1
 
+initSQL: https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
+
 configmap:
-  name: kafka-sizing-configmap-v1
+  name: kafka-sizing
 
 image:
-  name: quay.io/andyyuen/kafka-sizing
+  name: quay.io/andyyuen/kafka-sizing-mysql
   tag: latest

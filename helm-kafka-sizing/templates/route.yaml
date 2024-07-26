@@ -3,7 +3,6 @@ kind: Route
 metadata:
   name: kafka-sizing
 spec:
-  host: kafka-sizing-openshift-gitops.apps.ocpvirt.localdomain
   port:
     targetPort: {{ .Values.port }} 
   to:
