@@ -1,0 +1,9 @@
+resources:
+- deployment.yaml
+- service.yaml
+- route.yaml
+
+commonLabels:
+  app: kafka-sizing
+
+
