@@ -261,6 +261,7 @@ Note that you may encounter a login page first.
 Click '+ NEW APP' and enter the parameters as shown:
 ![Helm Argo CD parameters Part1](images/helm-argoCD-deploy-1.jpg "Helm Argo CD parameters Part1")
 ![Helm Argo CD parameters Part2](images/helm-argoCD-deploy-2.jpg "Helm Argo CD parameters Part2")
+For the Helm section, you only need to select the valuse.yaml and values-dev.yaml files. The other parameters are filled in automatically.
 ![Helm Argo CD parameters Part2](images/helm-argoCD-deploy-3.jpg "Helm Argo CD parameters Part3")
 And you will see the application you just created:
 ![Argo CD Helm Application](images/helm-application.jpg "Argo CD Helm Application")
@@ -312,6 +313,7 @@ The same procedure (used in 3.1.4 Deploying the Helm Chart With Argo CD) is used
 Click + NEW APP and enter the parameters as shown:
 ![Kustomize Argo CD parameters Part1](images/kustomize-argoCD-deploy-1.jpg "Kustomize Argo CD parameters Part1")
 ![Kustomize Argo CD parameters Part2](images/kustomize-argoCD-deploy-2.jpg "Kustomize Argo CD parameters Part2")
+For the Kustomize section, you do not need to enter anything. The required parameters are filled in automatically.
 ![Argo CD parameters Part2](images/kustomize-argoCD-deploy-3.jpg "Kustomize Argo CD parameters Part3")
 And you will see the application you just created:
 ![Kustomize Argo CD Application](images/kustomize-application.jpg "Kustomize Argo CD Application")
