@@ -300,7 +300,7 @@ Usage: ./createArgoCDInstance.sh namespace
 
 2. processMysqlYaml.sh - creates and executes a temporary Helm chart to create a mysql DeploymentConfig yaml file with DeploymentConfig lifecycle post hook to create the schema for use by the example application. The shell script does not require any input parameter. It is intended that you redirect the output to a file. The mysql_init.yaml in the 'mysql' directory was generated using this shell script.
 <pre>
-./processMysqlYaml.sh > ../kustom-kafka-sizing/mysql/msql_init.yaml
+./processMysqlYaml.sh > ../kustom-kafka-sizing/mysql/mysql-init.yaml
 </pre>
 
 1. processConfigmap.sh - creates and executes a temprorary kustomize project to generate a configmap based on a properties file. This feature is missing in Helm. It is intended that you redirect the output to a file. The configmap.yaml in helm-kafka-sizing's templates dirctory was generated using this shell script.
