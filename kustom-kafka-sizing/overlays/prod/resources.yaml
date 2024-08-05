@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-sizing
+spec:
+  template:
+    spec: # Pod spec
+      containers:
+      - name: webcontainer
+        resources:
+          requests:
+            memory: "400Mi" 
+            cpu: "200m"
+          limits:
+            memory: "800Mi"
+            cpu: "500m"

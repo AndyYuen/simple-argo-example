@@ -1,3 +1,10 @@
 
 replicas: 4
 
+requests:
+  memory: 400Mi
+  cpu: 200m
+
+limits:
+  memory: 800Mi
+  cpu: 500m

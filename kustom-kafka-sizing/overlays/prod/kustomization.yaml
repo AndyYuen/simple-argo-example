@@ -3,8 +3,6 @@ bases:
 - ../../mysql
 
 patchesStrategicMerge:
+- resources.yaml
 - replicas.yaml
 
-configMapGenerator:
-- name: kafka-sizing
-  env: config.properties

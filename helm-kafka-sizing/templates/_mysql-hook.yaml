@@ -1,4 +1,4 @@
-{{ define "mysqlInit" }}
+{{ define "mysqlHook" }}
 recreateParams:
   post:
     execNewPod:
@@ -7,7 +7,7 @@ recreateParams:
         - '-c'
         - >-
           curl -o ~/schema-mysql.sql 
-          {{ .Values.initSQL }}
+          {{ .Values.schemaUrl }}
           && /usr/bin/mysql -h mysql --protocol TCP -u
           $MYSQL_USER -D $MYSQL_DATABASE -p$MYSQL_PASSWORD <
           ~/schema-mysql.sql

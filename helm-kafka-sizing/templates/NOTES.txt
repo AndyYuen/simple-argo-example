@@ -1,3 +1,3 @@
-HOST=$(oc get route/kafka-sizing -n openshift-gitops | tail -1 | awk '{print $2;}')
+Display the route to access the kafka-sizing web application using the 2 commands below:
+HOST=$(oc get route/kafka-sizing | tail -1 | awk '{print $2;}')
 echo "http://${HOST}/size"
-Access the kafka-sizing web application using the URL above.

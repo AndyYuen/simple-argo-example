@@ -6,4 +6,6 @@ resources:
 commonLabels:
   app: kafka-sizing
 
-
+configMapGenerator:
+- name: kafka-sizing
+  env: application.properties

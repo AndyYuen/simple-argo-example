@@ -26,8 +26,8 @@ spec:
             name: {{ .Values.configmap.name }}
         resources:
           requests:
-            memory: "200Mi" 
-            cpu: "100m"
+            memory: "{{ .Values.requests.memory }}" 
+            cpu: "{{ .Values.requests.cpu }}"
           limits:
-            memory: "800Mi"
-            cpu: "500m"
+            memory: "{{ .Values.limits.memory }}"
+            cpu: "{{ .Values.limits.cpu }}"

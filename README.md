@@ -1,4 +1,316 @@
-# simple-argo-example
-A simple Argo CD example using helm and Kustomize on OpenShift, with emphasis on OpenShift features not found in K8S eg, routes, OpenShift Templates (the getting started resources in the Developer Catalog in the Developer tab of the OpenShift Console), etc. 
+# 1. A Simple Argo CD Example
+![Work In Progress](images/sprite-work-in-progress.gif "Work In Progress")
 
-Work in progress. Content changing all the time.
+## 1.1 [Ten Advantages Of Using ArgoCD With Kubernetes](https://successive.cloud/10-advantages-argocd-with-kubernetes/)
+The linked article explained the advantages of using Argo CD nicely. I've replicated them below for your convenience:
+1. Single Source Of Truth
+2. User Interface
+3. Faster Update Directly In Cluster
+4. Easy Roll Back
+5. Cluster Disaster Recovery
+6. Security
+7. Scalability
+8. Multi-Tenancy
+9. Leverages Existing Tools
+10. Monitoring and Alerting
+
+## 1.2 A simple Example
+This is a simple Argo CD example using helm and Kustomize on OpenShift, with emphasis on OpenShift features not found in K8S eg, routes, OpenShift Templates which are used to provision the services in the Developer Catalog of the OpenShift Console. The screen shown below can be accessed by selecting: Developer->+Add->All Services (Developer Catalog):
+
+![Developer Catalog](images/developerCatalog.jpg "Developer Catalog")
+
+This project was inspired by the excellent Youtube video: [ArgoCD Starter Guide: Full Tutorial for ArgoCD in Kubernetes.](https://www.youtube.com/watch?v=JLrR9RV9AFA)
+
+
+## 1.3 OpenShift Templates
+
+According to the [OpenShift Container Platform v4.16 documentation:](https://docs.openshift.com/container-platform/4.16/openshift_images/using-templates.html)
+<pre>
+A template describes a set of objects that can be parameterized and processed to produce a list of objects for creation by OpenShift Container Platform. A template can be processed to create anything you have permission to create within a project, for example services, build configurations, and deployment configurations. A template can also define a set of labels to apply to every object defined in the template.
+</pre>
+OpenShift templates use DeploymentConfig which precedes the K8S Deployment object. DeploymentConfig has features not found in Deployment eg, lifecycle hooks for executing custom behaviour in different points during the lifecycle of a deployment. We shall be using this feature to create a MySQL database and a database schema during deployment in my example. Although DeploymentConfig has been deprecated in OpenShift 4.14, it is still supported, but are not recommended for new installations. Since all OpenShift Developer Catalog services use OpenShift Templates which, in turn, use DeploymentConfig, expect DeploymentConfig to be supported for a long while yet.
+
+Openshift template commands:
+<pre>
+# list all OpenShift templates
+oc get templates -n openshift
+
+# look for mysql-persistent templates
+oc get templates -n openshift | grep -i  mysql-persistent
+
+# describe the input parameters of the template
+oc process --parameters mysql-persistent -n openshift
+NAME                    DESCRIPTION                                                             GENERATOR           VALUE
+MEMORY_LIMIT            Maximum amount of memory the container can use.                                             512Mi
+NAMESPACE               The OpenShift Namespace where the ImageStream resides.                                      openshift
+DATABASE_SERVICE_NAME   The name of the OpenShift Service exposed for the database.                                 mysql
+MYSQL_USER              Username for MySQL user that will be used for accessing the database.   expression          user[A-Z0-9]{3}
+MYSQL_PASSWORD          Password for the MySQL connection user.                                 expression          [a-zA-Z0-9]{16}
+MYSQL_ROOT_PASSWORD     Password for the MySQL root user.                                       expression          [a-zA-Z0-9]{16}
+MYSQL_DATABASE          Name of the MySQL database accessed.                                                        sampledb
+VOLUME_CAPACITY         Volume space available for data, e.g. 512Mi, 2Gi.                                           1Gi
+MYSQL_VERSION           Version of MySQL image to be used (8.0-el7, 8.0-el8, or latest).                            8.0-el8
+
+# process the template using the parameters defined in mysql.env and save the output to file
+oc process mysql-persistent --param-file=mysql.env -n openshift -o yaml > helm-kafka-sizing/templates/mysql.yaml
+
+</pre>
+The output of the command is saved in helm-kafka-sizing/templates/mysql.yaml. The output yaml contains the following objects:
+* secret
+* service
+* PersistentVolumeClaim
+* DeploymentConfig
+  
+The content of my mysql.env looks like:
+<pre>
+MEMORY_LIMIT=512Mi
+NAMESPACE=openshift
+DATABASE_SERVICE_NAME=mysql
+MYSQL_USER=sa
+MYSQL_PASSWORD=sa
+MYSQL_ROOT_PASSWORD=sa
+MYSQL_DATABASE=springSession
+VOLUME_CAPACITY=512Mi
+MYSQL_VERSION=8.0-el8
+</pre>
+The content of mysql.env has to match the application.properties files of the kafka-sizing application, which is shown below:
+<pre>
+spring.application.name=kafka-sizing
+
+spring.profiles.active=@activatedProfile@
+
+# define logging level
+logging.level.com.appsdeveloperblog.examples=INFO
+
+# application default parameters
+# ------------------------------
+# safetyFactor covers protocol overheads, data imbalance and sudden peaks
+app.default.safetyFactor=1.6
+
+# vCPUs per Kafka broker
+app.default.vcpusPerBroker=8
+app.default.vcpuIncrement=2
+
+# memory in GB per Kafka broker
+app.default.memPerBroker=32
+
+# vCPUs per Zookeeper node
+app.default.vcpusPerZkNode=4
+
+# memory in GB per Zookeeper node
+app.default.memPerZkNode=16
+
+# disk required in GB per Zookeeper node
+app.default.diskPerZkNode=100
+# ------------------------------
+
+# Database configuration
+spring.datasource.url=jdbc:mysql://mysql:3306/springSession
+spring.datasource.username=root
+spring.datasource.password=sa
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.platform=mysql
+spring.datasource.initialization-mode=never
+#spring.session.jdbc.initialize-schema=always
+spring.session.store-type=jdbc 
+spring.session.jdbc.table-name=SPRING_SESSION
+
+server.servlet.session.timeout=30m
+
+</pre>
+
+## 1.4 Routes
+A route exposes a service at a public URL. It can either be secure (HTTPS) or unsecured (HTTP), depending on the network security configuration of your application. The cloest equivalence in K8S is an Ingress object. 
+<br /><br />
+When a Route object is created on OpenShift, it gets picked up by the built-in HAProxy load balancer in order to expose the requested service and make it externally available with the given configuration.
+
+
+# 2. Prerequisites
+You must have the following before you can deploy the example using Argo CD:
+* A OpenSHift Cluster
+* An OpenShift account with cluster-admin rights
+* The Red Hat OpenShift GitOps Operator installed
+* You have installed the helm, kustomize and oc command binaries
+* An Argo CD instance created for each namespace you want to deploy the example application in eg, kafka-sizing-dev and kafka-sizing-prod in this example. A shell script has been provided to help you do this. See section 5 for more details.
+
+# 3. Deploying My example Application
+My example application is a Java application called kafka-sizing. Its source code can be found in my [Github repo](https://github.com/AndyYuen/kafka-sizing). It is just for reference. You don't have to compile it. Its container image can be found at:
+<pre>
+quay.io/andyyuen/kafka-sizing-mysql:latest
+</pre>
+The application requires a MySQL database to persists user sessions and parameters entered for sizing purposes. FYI, here is the problem statement for the application:
+<pre>
+Enterprises planning to use Red Hat AMQ Streams (Kafka) want to get an idea as to how many subscription cores they need to purchase. The intention of this tool is to provide an educated estimate. Nothing beats simulating the load on your hardware but this is not always feasible. The next best thing is to develop an analytical model to do the estimation.
+</pre>
+You do not have to understand how it arrives at the estimation. I am using this as an example because it is a non-trivial application requiring a MySQL database which can be deployed using an OpenShift template.
+
+## 3.1 Deploymant Using a Helm Chart
+
+### 3.1.1 My Example Helm Chart Organisation
+The Helm chart directory structure is shown below:
+![Helm Chart Directory Structure](images/helm-directory-tree.jpg "Helm Chart Directory Structure")
+
+### 3.1.2 Templates and Values
+The yaml files in the templates directory have been set up with template directives and the syntax is shown below:
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+  labels:
+    app: {{ .Values.appName }}
+spec:
+  replicas: {{ .Values.replicas }}
+  ...
+</pre>
+And each parameter specified in the template directive is replaced by those defined in the valuse.yaml file when you deploy the Hel chart.
+Here is a sample of the valuse.yaml:
+<pre>
+appName: kafka-sizing
+
+port: 8080
+
+replicas: 1
+
+schemaUrl: https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
+
+configmap:
+  name: kafka-sizing
+
+image:
+  name: quay.io/andyyuen/kafka-sizing-mysql
+  tag: latest
+
+requests:
+  memory: 200Mi
+  cpu: 100m
+
+limits:
+  memory: 500Mi
+  cpu: 400m
+</pre>
+
+To add the DeploymentConfig lifecycle hook to the yaml generated by the 'oc process' command for the MySQL database deployment, a named template, named _mysql_hook.yaml, is used. Its content is shown below:
+<pre>
+{{ define "mysqlHook" }}
+recreateParams:
+  post:
+    execNewPod:
+      command:
+        - /bin/sh
+        - '-c'
+        - >-
+          curl -o ~/schema-mysql.sql 
+          {{ .Values.schemaUrl }}
+          && /usr/bin/mysql -h mysql --protocol TCP -u
+          $MYSQL_USER -D $MYSQL_DATABASE -p$MYSQL_PASSWORD <
+          ~/schema-mysql.sql
+      containerName: mysql
+    failurePolicy: abort
+{{ end }}
+</pre>
+Notice it, in turn, uses a template directive to allow substituting the parameter 'schemaUrl' with a database schema file.
+The named template is invoked in the mysql.yaml file:
+<pre>
+  ...
+  spec:
+    replicas: 1
+    selector:
+      name: mysql
+    strategy:
+      type: Recreate
+      {{- include "mysqlHook" . | indent 6 }}
+    template:
+      metadata:
+        labels:
+          name: mysql
+	...	  
+</pre>
+Notice the 'indent 6' function call which specifies that the yaml code block needs to be preceded by 6 spaces.
+
+Helm does not have a convenient mechanism to generate a configmap like kustomize's configMapGenerator. Hence, I am making use of this kustomize feature to generate a configmap based on a properties file for my Helm chart. See Section 4 for details.
+
+### 3.1.3 Deployment the Helm Chart Without Argo CD
+All you need to do is switch to the project you want to deploy in and run the helm command:
+<pre>
+# Switch to an existing project eg, helm-test
+oc project helm-test
+
+# Install the application from the 'simple-argo-example/helm-kafka-sizing' directory,
+# using the dev environment configuration
+helm install helm-kafka-sizing . --values values.yaml,values-dev.yaml
+
+# Uninstall the application
+helm uninstall helm-kafka-sizing
+</pre>
+
+### 3.1.4 Deployment the Helm Chart With Argo CD
+You need to log in to the Argo CD UI. The UI can be invoked as follows:
+
+From the OpenShift Console's Administrator->Networking->Routes tab, select project 'openshift-gitops' and click on the Location's arrow-in-a-square symbol of 'openshift-gitops-server':
+![Argo CD UI Route](images/openshift-gitops-server-route.jpg "Argo CD UI Route")
+
+And the Argo CD UI will come up:
+![Argo CD UI](images/argoCD-UI.jpg "Argo CD UI")
+
+Note that you may encounter a login page first.
+
+
+## 3.2 Deployment Using Kustomize
+In this section, I am doing the continuous deployment, this time, using Kustomize.
+<br/><br />
+Kustomize is a tool included in the oc or kubectl command. However, you need to have the kustomize command binary on your machine to execute the processConfigmap.sh shell script (see Section 4.).
+Kustomize lets transform template-free (ie, without using template directives used in the Helm chart above) yaml files without modifying the original yaml files.And it has convenience features such as configMapGenerator and secretGenerator that are not found in Helm.
+<br /><br />
+The same kafka-sizing application will be used to contrast the different approaches used by Helm and Kustomize.
+
+### 3.2.1 My Kustomize Example Organisation
+The kustomize directory structure is shown below:
+![Kustomize Directory Structure](images/kustomize-directory-tree.jpg "Kustomize Directory Structure")
+
+
+### 3.2.2 Deployment using Kustomize without Argo CD
+All you need to do is switch to the project you want to deploy in and run the kustomize command:
+<pre>
+# Switch to an existing project eg, kustomize-test
+oc project kustomize-test
+
+# Install the application from the 'simple-argo-example' directory 
+# using the prod environment configuration
+kustomize build kustom-kafka-sizing/overlays/dev | oc apply -f -
+# or,
+oc kustomize kustom-kafka-sizing/overlays/prod | oc apply -f -
+
+# Uninstall the application from the simple-argo-example directory 
+# using the dev environment configuration
+kustomize build kustom-kafka-sizing/overlays/prod | oc delete -f -
+# or,
+oc kustomize kustom-kafka-sizing/overlays/prod | oc delete -f -
+</pre>
+
+### 3.2.3 Deployment using Kustomize With Argo CD
+
+# 4. Utility Shell Scripts
+A couple of utility shell scripts have been provided for your convenience.
+
+1. createArgoCDInstance.sh - this script creates an Argo CD instance in the namespace you specify. You must create an Argo CD instance in each namespace you want to deploy my example application in.
+<pre>
+Usage: ./createArgoCDInstance.sh namespace
+</pre>
+
+2. processMysqlYaml.sh - creates and executes a temporary Helm chart to create a mysql DeploymentConfig yaml file with DeploymentConfig lifecycle post hook to create the schema for use by the example application. The shell script does not require any input parameter. It is intended that you redirect the output to a file. The mysql_init.yaml in the 'mysql' directory was generated using this shell script.
+<pre>
+./processMysqlYaml.sh > ../kustom-kafka-sizing/mysql/msql_init.yaml
+</pre>
+
+1. processConfigmap.sh - creates and executes a temprorary kustomize project to generate a configmap based on a properties file. This feature is missing in Helm. It is intended that you redirect the output to a file. The configmap.yaml in helm-kafka-sizing's templates dirctory was generated using this shell script.
+<pre>
+./processConfigmap.sh > ../helm-kafka-sizing/templates/configmap.yaml
+</pre>
+
+
+# 5. Conclusion
+I've shown you how to deploy my example application using a Helm chart with Argo CD as well as using kustomize with Argo CD. Each has its own pros and cons. For example, Helm's named template adds our MySQL hook to the MySQL deployment generated by the 'oc process' command easily. And for Kustomize, it has a configMapGenerator that conveniently generates a config map from a properties file. Which tool to use depends on the use case and your preference. <br /><br />
+There are way to use Helm and Kustomize together with Argo CD eg, one way to do that is using a configmap and a side-car container. If you are interested in the subject, just google it. Or wait for my next Youtube video.
+
+## ENJOY ;-) !!! 

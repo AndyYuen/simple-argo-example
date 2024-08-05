@@ -6,6 +6,3 @@ bases:
 patchesStrategicMerge:
 - replicas.yaml
 
-configMapGenerator:
-- name: kafka-sizing
-  env: config.properties
