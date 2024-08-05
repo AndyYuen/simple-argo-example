@@ -88,7 +88,7 @@ items:
               secretKeyRef:
                 key: database-name
                 name: mysql
-          image: ' '
+          image: registry.redhat.io/rhel8/mysql-80@sha256:8e9a6595ac9aec17c62933d3b5ecc78df8174a6c2ff74c7f602235b9aef0a340
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:
@@ -121,16 +121,16 @@ items:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: mysql
-    triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - mysql
-        from:
-          kind: ImageStreamTag
-          name: mysql:8.0-el8
-          namespace: openshift
-      type: ImageChange
-    - type: ConfigChange
+    # triggers:
+    # - imageChangeParams:
+    #     automatic: true
+    #     containerNames:
+    #     - mysql
+    #     from:
+    #       kind: ImageStreamTag
+    #       name: mysql:8.0-el8
+    #       namespace: openshift
+    #   type: ImageChange
+    # - type: ConfigChange
 kind: List
 metadata: {}
