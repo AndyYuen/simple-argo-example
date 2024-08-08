@@ -1,6 +1,8 @@
 # 1. A Simple Argo CD Example
 ![Work In Progress](images/sprite-work-in-progress.gif "Work In Progress")
 
+Argo CD is a declarative continuous delivery tool for Kubernetes. It delivers version controlled resources such as application definitions, configurations and target states from a Git repository.
+
 ## 1.1 [Ten Advantages Of Using ArgoCD With Kubernetes](https://successive.cloud/10-advantages-argocd-with-kubernetes/)
 The linked article explained the advantages of using Argo CD nicely. I've summarised them below for your convenience:
 1. Single Source Of Truth
@@ -15,7 +17,7 @@ The linked article explained the advantages of using Argo CD nicely. I've summar
 10. Monitoring and Alerting
 
 ## 1.2 A simple Real-World Example
-This is a simple Argo CD example using helm and Kustomize on OpenShift, with emphasis on OpenShift features not found in K8S eg, routes, OpenShift Templates which are used to provision the 140+ services in the Developer Catalog of the OpenShift Console. The screen shown below can be accessed by selecting: Developer->+Add->All Services (Developer Catalog):
+Red Hat OpenShift is a hybrid cloud, enterprise Kubernetes platform with comprehensive features and developer-friendly functionality. This is a simple Argo CD example using helm and Kustomize on OpenShift, with emphasis on OpenShift features not found in Kubernetes eg, routes, OpenShift Templates which are used to provision the 140+ services in the Developer Catalog of the OpenShift Console. The screen shown below can be accessed by selecting: Developer->+Add->All Services (Developer Catalog):
 
 ![Developer Catalog](images/developerCatalog.jpg "Developer Catalog")
 
@@ -28,7 +30,7 @@ According to the [OpenShift Container Platform v4.16 documentation:](https://doc
 
 > A template describes a set of objects that can be parameterized and processed to produce a list of objects for creation by OpenShift Container Platform. A template can be processed to create anything you have permission to create within a project, for example services, build configurations, and deployment configurations. A template can also define a set of labels to apply to every object defined in the template.
 
-OpenShift templates use DeploymentConfig which predates the K8S Deployment object. DeploymentConfig has features not found in Deployment eg, lifecycle hooks for executing custom behaviour in different points during the lifecycle of a deployment. I shall be using this feature to create a MySQL database and initialise it with a database schema during deployment in my example. Although DeploymentConfig has been deprecated in OpenShift 4.14, it is still supported, but are not recommended for new installations. Since all OpenShift Developer Catalog services use OpenShift Templates which, in turn, use DeploymentConfig, expect DeploymentConfig to be supported for a longer while yet.
+OpenShift templates use DeploymentConfig which predates the Kubernetes Deployment object. DeploymentConfig has features not found in Deployment eg, lifecycle hooks for executing custom behaviour in different points during the lifecycle of a deployment. I shall be using this feature to create a MySQL database and initialise it with a database schema during deployment in my example. Although DeploymentConfig has been deprecated in OpenShift 4.14, it is still supported, but are not recommended for new installations. Since all OpenShift Developer Catalog services use OpenShift Templates which, in turn, use DeploymentConfig, expect DeploymentConfig to be supported for a longer while yet.
 
 Openshift template commands:
 <pre>
@@ -57,7 +59,7 @@ MYSQL_VERSION           Version of MySQL image to be used (8.0-el7, 8.0-el8, or 
 oc process mysql-persistent --param-file=mysql.env -n openshift -o yaml > helm-kafka-sizing/templates/mysql.yaml
 
 </pre>
-The output of the command is saved in helm-kafka-sizing/templates/mysql.yaml. The output yaml contains the following objects:
+The output of the 'oc process' command is saved in helm-kafka-sizing/templates/mysql.yaml. The output yaml contains the following objects:
 * secret
 * service
 * PersistentVolumeClaim
@@ -75,7 +77,7 @@ MYSQL_DATABASE=springSession
 VOLUME_CAPACITY=512Mi
 MYSQL_VERSION=8.0-el8
 </pre>
-The content of mysql.env has to match that in the application.properties file of the kafka-sizing application, which is shown below:
+The MySQL-related content of mysql.env has to match that in the application.properties file of the kafka-sizing application, which is shown below:
 <pre>
 spring.application.name=kafka-sizing
 
@@ -122,7 +124,7 @@ server.servlet.session.timeout=30m
 </pre>
 
 ## 1.4 Routes
-A route exposes a service at a public URL. It can either be secure (HTTPS) or unsecured (HTTP), depending on the network security configuration of your application. The cloest equivalence in K8S is an Ingress object. 
+A route exposes a service at a public URL. It can either be secure (HTTPS) or unsecured (HTTP), depending on the network security configuration of your application. The cloest equivalence in Kubernetes is an Ingress object. 
 <br /><br />
 When a Route object is created on OpenShift, it gets picked up by the built-in HAProxy load balancer in order to expose the requested service and make it externally available with the given configuration.
 
@@ -147,6 +149,7 @@ The application requires a MySQL database to persists user sessions and paramete
 You do not have to understand how it arrives at the estimation. I am using this as an example because it is a non-trivial application requiring a MySQL database which can be deployed using an OpenShift template from the Developer Catalog.
 
 ## 3.1 Deploymant Using a Helm Chart
+Helm is a package manager that provides easy automated deployment and management  of applications for Kubernetes. Helm uses charts which contain a collection of yaml files with template directives that define the application's components, their dependencies and configurations. It dynamically renders these yaml files with templage directives to generate Kubernetes manifests based on values provided by the user in values yaml files.
 
 ### 3.1.1 My Example Helm Chart Organisation
 The Helm chart directory structure is shown below:
@@ -165,7 +168,7 @@ spec:
   replicas: {{ .Values.replicas }}
   ...
 </pre>
-And each parameter specified in the template directive is replaced by those defined in the values.yaml and values-XXX files when you install the Helm chart.
+Each parameter specified in the template directive is replaced by those defined in the values.yaml and values-XXX files when you install the Helm chart.
 Here is a sample of the values.yaml:
 <pre>
 appName: kafka-sizing
@@ -211,7 +214,7 @@ recreateParams:
     failurePolicy: abort
 {{ end }}
 </pre>
-Notice that it, in turn, uses a template directive to allow substitution of the parameter 'schemaUrl' poitnting to a database schema file.
+The template name is 'mysqlHook'. Notice that it, in turn, uses a template directive to allow substitution of the parameter 'schemaUrl' poitnting to a database schema file.
 The named template is invoked in the mysql.yaml file:
 <pre>
   ...
@@ -232,7 +235,7 @@ Pay attention to the 'indent 6' function call which specifies that the yaml code
 
 Note that the imageChange trigger in the generated mysql.yaml has been commented out to avoid the trigger from changing the image's value in DeploymentConfig causing Argo CD to constantly get out of sync.
 
-Helm does not have a convenient mechanism to generate a configmap object like kustomize's configMapGenerator. Hence, I am making use of this kustomize feature to generate a configmap based on a properties file for my Helm chart. See Section 4 for details.
+Helm does not have a convenient mechanism to generate a configmap object like kustomize's configMapGenerator. Hence, I am making use of this kustomize feature to generate a configmap based on kafka-sizing's application.properties file for my Helm chart. See Section 4 for details.
 
 ### 3.1.3 Deploying the Helm Chart Without Argo CD
 All you need to do is switch to the project (namespace) you want to deploy in and run the helm command:
@@ -279,8 +282,9 @@ Argo CD is a declarative continuous delivery tool for Kubernetes. It is implemen
 ## 3.2 Deployment Using Kustomize
 In this section, I am doing the deployment using Kustomize.
 <br/><br />
-Kustomize is a tool included in the oc or kubectl command. However, you need to have the kustomize command binary on your machine to execute the processConfigmap.sh shell script (see Section 4.).
-Kustomize lets your transform template-free (ie, without using template directives used in the Helm chart above) yaml files without modifying the original yaml files. And it has convenience features such as configMapGenerator and secretGenerator that are not found in Helm.
+Kustomize is a declarative configuration management/transformation tool included natively in the oc or kubectl command. In our case, you need to have the kustomize command binary installed on your machine to execute the processConfigmap.sh shell script (see Section 4.).
+Kustomize lets you transform template-free (ie, without using template directives used in the Helm chart shown earlier) yaml files without modifying the original yaml files. And it has convenience features such as configMapGenerator and secretGenerator that are not found in Helm.
+Kustomize works by overlaying base Kubernetes manifests with user-defined customisation defined in kustomization.yaml files.
 <br /><br />
 The same kafka-sizing application will be used to contrast the different approaches used by Helm and Kustomize.
 
@@ -288,6 +292,32 @@ The same kafka-sizing application will be used to contrast the different approac
 The kustomize directory structure is shown below:
 ![Kustomize Directory Structure](images/kustomize-directory-tree.jpg "Kustomize Directory Structure")
 
+Kafka-sizing and mysql are the directories containing the base manifests. The dev and prod directories contain overlays which are applied on top of the base manifests allowing for configuration changes without modifying the base manifests for the 'dev' and 'prod' environment respectively.
+
+Here is the kustomization.yaml file in the prod directory for transforming the base manifests:
+<pre>
+bases:
+- ../../kafka-sizing
+- ../../mysql
+
+patchesStrategicMerge:
+- resources.yaml
+- replicas.yaml
+</pre>
+bases: points to the two base directories kafka-sizing and mysql.
+patchesStrategicMerge: instructs kustomize to merge the resources.yaml and replicas.yaml with the appropriate base manifests. In this case, they both transform the kafka-sizing deployment manifest. resources.yaml transforms the resource requests/limits on cpu and mamory and replicas.yaml transforms the number of replicas.
+Both resources.yaml and replicas.yaml contains minimally sufficient information to identify the the base manifest.
+<br /><br />
+The kustomization.yaml file in the dev directory is shown below:
+<pre>
+bases:
+- ../../kafka-sizing
+- ../../mysql
+
+patchesStrategicMerge:
+- replicas.yaml
+</pre>
+Its is similar to the one in the prod directory but only transforms the number of replicas in the base manifest. The resource requests/limits on cpu and memory remain unchanged from the base mainfest, unlike the one in the prod directory.
 
 ### 3.2.2 Deploying using Kustomize without Argo CD
 All you need to do is switch to the project you want to deploy in and run the kustomize command:
@@ -342,7 +372,7 @@ Three utility shell scripts have been provided for your convenience.
 
 
 # 5. Conclusion
-I've shown you how to deploy my example application using a Helm chart with Argo CD as well as using kustomize with Argo CD. Each approach has its own pros and cons. For example, Helm's named template adds our MySQL hook to the MySQL DeploymentConfig generated by the 'oc process' command easily. And for Kustomize, it has a configMapGenerator that conveniently generates a config map from a properties file. Which tool to use depends on the use case and your preference. <br /><br />
-There are way to use both Helm and Kustomize together with Argo CD eg, one way to do that is using a configmap containing a shell script and an side-car container. If you are interested in this approach, just google it. Or wait for my next Youtube video.
+I've shown you how to deploy my example application using a Helm chart with Argo CD, as well as, using kustomize with Argo CD. Each approach has its pros and cons. For example, Helm's named template adds our MySQL hook to the MySQL DeploymentConfig generated by the 'oc process' command easily. And for Kustomize, it has a configMapGenerator that conveniently generates a config map from a properties file. Which tool to use depends on the use case and your preference. <br /><br />
+There are way to use both Helm and Kustomize together with Argo CD eg, one way to do that is using a configmap containing a shell script and a side-car container. If you are interested in this approach, just google it. Or wait for my next Youtube video.
 
 ## ENJOY ;-) !!! 
