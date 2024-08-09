@@ -1,8 +1,7 @@
-bases:
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
 - ../../kafka-sizing
 - ../../mysql
-
-
-patchesStrategicMerge:
-- replicas.yaml
-
+patches:
+- path: replicas.yaml
