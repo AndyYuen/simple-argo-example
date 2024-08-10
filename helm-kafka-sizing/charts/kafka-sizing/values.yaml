@@ -1,0 +1,22 @@
+appName: kafka-sizing
+
+port: 8080
+
+replicas: 1
+
+schemaUrl: https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
+
+configmap:
+  name: kafka-sizing
+
+image:
+  name: quay.io/andyyuen/kafka-sizing-mysql
+  tag: latest
+
+requests:
+  memory: 200Mi
+  cpu: 100m
+
+limits:
+  memory: 500Mi
+  cpu: 400m
