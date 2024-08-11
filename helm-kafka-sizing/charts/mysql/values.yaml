@@ -1,2 +1,8 @@
 
 schemaUrl: https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
+
+mysql:
+  image: registry.redhat.io/rhel8/mysql-80@sha256:8e9a6595ac9aec17c62933d3b5ecc78df8174a6c2ff74c7f602235b9aef0a340
+  databasePassword: sa
+  databaseRootPassword: sa
+  databaseUser: sa

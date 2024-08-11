@@ -14,9 +14,9 @@ items:
     name: mysql
   stringData:
     database-name: springSession
-    database-password: sa
-    database-root-password: sa
-    database-user: sa
+    database-password: {{ .Values.mysql.databasePassword }}
+    database-root-password: {{ .Values.mysql.databaseRootPassword }}
+    database-user: {{ .Values.mysql.databaseUser }}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -88,7 +88,7 @@ items:
               secretKeyRef:
                 key: database-name
                 name: mysql
-          image: registry.redhat.io/rhel8/mysql-80@sha256:8e9a6595ac9aec17c62933d3b5ecc78df8174a6c2ff74c7f602235b9aef0a340
+          image: {{ .Values.mysql.image }}
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:

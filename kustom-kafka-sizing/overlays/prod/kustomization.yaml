@@ -3,6 +3,14 @@ kind: Kustomization
 resources:
 - ../../kafka-sizing
 - ../../mysql
+
 patches:
 - path: resources.yaml
 - path: replicas.yaml
+- path: mysql-secret.yaml
+
+configMapGenerator:
+- name: kafka-sizing
+  behavior: merge
+  literals:
+  - spring.datasource.password=ssp

@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: {{ .Values.configmap.name }}
 data:
-  spring.datasource.password: sa
+  spring.datasource.password: {{ .Values.databaseRootPassword }}
   app.default.vcpuIncrement: '2'
   logging.level.com.appsdeveloperblog.examples: INFO
   spring.session.jdbc.table-name: SPRING_SESSION

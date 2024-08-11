@@ -9,6 +9,8 @@ schemaUrl: https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/ma
 configmap:
   name: kafka-sizing
 
+databaseRootPassword: sa
+
 image:
   name: quay.io/andyyuen/kafka-sizing-mysql
   tag: latest
