@@ -1,5 +1,15 @@
 # 1. A Simple Argo CD Example
-![Work In Progress](images/sprite-work-in-progress.gif "Work In Progress")
+
+Watch the accompanying 3-part video series: Using OpenShift Templates, Helm and Kustomize with Argo CD by clicking on the videos below:
+
+Part 1 - Deploying a MySQL Database Using an OpenShift Template
+[![Part 1](https://img.youtube.com/vi/KSutztbCP6o/default.jpg)](https://youtu.be/KSutztbCP6o)
+<br />
+Part 2 - Deploying Helm Charts with Argo CD<br />
+[![Part 2](https://img.youtube.com/vi/Gjp-n69eLXk/default.jpg)](https://youtu.be/Gjp-n69eLXk)
+<br />
+Part 3 - Utilising kustomize with Argo CD<br />
+[![Part 3](https://img.youtube.com/vi/eN6PTTAaq4U/default.jpg)](https://youtu.be/eN6PTTAaq4U)<br />
 
 Argo CD is a declarative continuous delivery tool for Kubernetes. It delivers version controlled resources such as application definitions, configurations and target states from a Git repository.
 
