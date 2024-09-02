@@ -2,7 +2,7 @@
 
 Watch the accompanying 3-part video series: Using OpenShift Templates, Helm and Kustomize with Argo CD by clicking on the videos below:
 
-Part 1 - Deploying a MySQL Database Using an OpenShift Template
+Part 1 - Deploying a MySQL Database Using an OpenShift Template<br />
 [![Part 1](https://img.youtube.com/vi/KSutztbCP6o/default.jpg)](https://youtu.be/KSutztbCP6o)
 <br />
 Part 2 - Deploying Helm Charts with Argo CD<br />
