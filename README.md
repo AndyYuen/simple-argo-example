@@ -135,12 +135,13 @@ When a Route object is created on OpenShift, it gets picked up by the built-in H
 
 
 # 2. Prerequisites
-You must have the following before you can deploy the example using Argo CD:
+To deploy the example using Argo CD, you must have:
+* Forked this repository: https://github.com/AndyYuen/simple-argo-example/
 * An OpenShift Cluster
 * An OpenShift account with cluster-admin rights
 * The Red Hat OpenShift GitOps Operator installed
 * You have installed the helm, kustomize and oc command binaries
-* An Argo CD instance has been created for each namespace you want to deploy the example application in eg, kafka-sizing-dev and kafka-sizing-prod in this example. A shell script has been provided to help you do this. See Section 4 for more details.
+* An Argo CD instance created for each namespace you want to deploy the example application in eg, kafka-sizing-dev and kafka-sizing-prod in this example. A shell script has been provided to help you do this. See Section 4 for more details.
 
 # 3. Deploying My Example Application
 My example application is a Java application called kafka-sizing. Its source code can be found in my [Github repo](https://github.com/AndyYuen/kafka-sizing). It is just for reference. You don't have to compile it or understand how it works. Its container image can be found at:

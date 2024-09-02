@@ -4,8 +4,6 @@ port: 8080
 
 replicas: 1
 
-schemaUrl: https://raw.githubusercontent.com/andyyuen/kafka-sizing/master/src/main/resources/schema-mysql.sql
-
 configmap:
   name: kafka-sizing
 
