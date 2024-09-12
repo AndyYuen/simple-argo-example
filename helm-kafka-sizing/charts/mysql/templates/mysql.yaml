@@ -60,7 +60,7 @@ items:
       name: mysql
     strategy:
       type: Recreate
-      {{- include "mysqlHook" . | indent 6 }}
+      {{- include "mysqlHook" . | indent 6 -}}
     template:
       metadata:
         labels:
